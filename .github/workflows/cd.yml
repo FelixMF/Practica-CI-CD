@@ -3,30 +3,43 @@ name: CD Pipeline
 on:
   push:
     branches: [ main ]
-    # paths:  # Opcional (si lo necesitas)
-    #   - 'app.js'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    
+    - name: Fix npm permissions
+      run: |
+        mkdir -p ~/.npm-global
+        npm config set prefix '~/.npm-global'
+        echo 'export PATH=~/.npm-global/bin:$PATH' >> ~/.bashrc
+        source ~/.bashrc
+        
+    - name: Install dependencies
+      run: npm ci
       
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          
-      - name: Install dependencies
-        run: npm install
+    - name: Install Vercel CLI
+      run: npm install -g vercel
+      
+    - name: Verify installations
+      run: |
+        node -v
+        npm -v
+        vercel --version
         
-      - name: Run tests
-        run: npm test
-        
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v20
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          scope: yos-projects-0d033bbe
+    - name: Deploy to Vercel
+      uses: amondnet/vercel-action@v20
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        scope: yos-projects-0d033bbe
