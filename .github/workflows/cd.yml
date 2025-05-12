@@ -32,3 +32,5 @@ jobs:
         vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
         vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
         scope: yos-projects-0d033bbe
+
+        echo "Deploying to Vercel..."
